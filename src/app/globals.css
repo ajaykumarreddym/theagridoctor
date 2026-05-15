@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #0f172a; /* slate-900 */
+  --input: #e2e8f0;      /* slate-200 (border-input) */
+  --ring: #059669;       /* emerald-600 */
+  --muted-foreground: #64748b; /* slate-500 */
+  color-scheme: light;
+}
+
+/* Always use light theme regardless of OS preference. */
+html,
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* shadcn form controls rely on these semantic tokens */
+@layer base {
+  .border-input {
+    border-color: var(--input);
+  }
+  .bg-background {
+    background-color: var(--background);
+  }
+  .text-foreground {
+    color: var(--foreground);
+  }
+  .placeholder\:text-muted-foreground::placeholder {
+    color: var(--muted-foreground);
+  }
+  .ring-ring {
+    --tw-ring-color: var(--ring);
+  }
+  input,
+  textarea,
+  select {
+    background-color: #ffffff;
+    color: #0f172a;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: #94a3b8; /* slate-400 */
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
