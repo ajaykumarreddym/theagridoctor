@@ -120,9 +120,13 @@ export default function AdvisorPage() {
 
   const sendMessage = useCallback(async () => {
     if (!input.trim() || isLoading) return
-    if (!activeSessionId) {
-      await createNewSession()
-      return
+    
+    // Ensure we have an active session
+    let sessionId = activeSessionId
+    if (!sessionId) {
+      const newSession = await createNewSession()
+      if (!newSession) return
+      sessionId = newSession.id
     }
 
     const userMsg = input.trim()
@@ -134,7 +138,7 @@ export default function AdvisorPage() {
     // Optimistic UI
     const optimisticMsg: ChatMessage = {
       id: `temp-${Date.now()}`,
-      session_id: activeSessionId,
+      session_id: sessionId,
       role: 'user',
       content: userMsg,
       created_at: new Date().toISOString(),
@@ -145,7 +149,7 @@ export default function AdvisorPage() {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMsg, sessionId: activeSessionId }),
+        body: JSON.stringify({ message: userMsg, sessionId }),
       })
 
       if (!res.ok) {
@@ -157,29 +161,33 @@ export default function AdvisorPage() {
       const decoder = new TextDecoder()
       let accumulated = ''
 
+      // Read the entire stream
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
-        const chunk = decoder.decode(value, { stream: true })
+        const chunk = decoder.decode(value, { stream: false })
         accumulated += chunk
         setStreamingContent(accumulated)
       }
 
-      // Commit streamed message
-      const aiMsg: ChatMessage = {
-        id: `ai-${Date.now()}`,
-        session_id: activeSessionId,
-        role: 'assistant',
-        content: accumulated,
-        created_at: new Date().toISOString(),
+      // Ensure we got the complete response
+      if (accumulated.trim()) {
+        // Commit streamed message with full content
+        const aiMsg: ChatMessage = {
+          id: `ai-${Date.now()}`,
+          session_id: sessionId,
+          role: 'assistant',
+          content: accumulated,
+          created_at: new Date().toISOString(),
+        }
+        setMessages(prev => [...prev, aiMsg])
       }
-      setMessages(prev => [...prev, aiMsg])
       setStreamingContent('')
 
       // Update session title in sidebar if it was "New Conversation"
       setSessions(prev =>
         prev.map(s =>
-          s.id === activeSessionId && s.title === 'New Conversation'
+          s.id === sessionId && s.title === 'New Conversation'
             ? { ...s, title: userMsg.length > 50 ? userMsg.slice(0, 50) + '…' : userMsg }
             : s
         )
@@ -187,7 +195,7 @@ export default function AdvisorPage() {
     } catch (err) {
       const errMsg: ChatMessage = {
         id: `err-${Date.now()}`,
-        session_id: activeSessionId,
+        session_id: sessionId,
         role: 'assistant',
         content: '⚠️ Sorry, I encountered an error. Please try again.',
         created_at: new Date().toISOString(),
@@ -199,7 +207,7 @@ export default function AdvisorPage() {
       setIsStreaming(false)
       textareaRef.current?.focus()
     }
-  }, [input, isLoading, activeSessionId, setIsStreaming])
+  }, [input, isLoading, activeSessionId, setIsStreaming, createNewSession])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -208,12 +216,8 @@ export default function AdvisorPage() {
     }
   }
 
-  // When no session is active and user types, auto-create session
+  // Send button handler - just calls sendMessage which handles session creation
   const handleSend = async () => {
-    if (!activeSessionId) {
-      const session = await createNewSession()
-      if (!session) return
-    }
     sendMessage()
   }
 
@@ -374,7 +378,11 @@ export default function AdvisorPage() {
             <VoiceInput
               disabled={isLoading}
               language={voiceLang}
-              onStart={() => { voiceBaseRef.current = input }}
+              onStart={() => { 
+                voiceBaseRef.current = input
+                // Auto-focus input when mic is clicked
+                textareaRef.current?.focus()
+              }}
               onInterim={(text) => {
                 const base = voiceBaseRef.current
                 setInput(base + (base && text ? ' ' : '') + text)
