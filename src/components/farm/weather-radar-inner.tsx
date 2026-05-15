@@ -95,10 +95,40 @@ function MapAutoInvalidate() {
   return null
 }
 
-function RadarSweep() {
+// Component to render radar sweep at the farm marker position (not screen center)
+function RadarSweepAtPosition({ lat, lng }: { lat: number; lng: number }) {
+  const map = useMap()
+  const [sweepPosition, setSweepPosition] = useState({ x: 0, y: 0 })
+
+  useEffect(() => {
+    const updatePosition = () => {
+      const point = map.latLngToContainerPoint([lat, lng])
+      setSweepPosition({ x: point.x, y: point.y })
+    }
+
+    // Update on mount, zoom, and move
+    updatePosition()
+    map.on('zoom', updatePosition)
+    map.on('move', updatePosition)
+    map.on('zoomend', updatePosition)
+    map.on('moveend', updatePosition)
+
+    return () => {
+      map.off('zoom', updatePosition)
+      map.off('move', updatePosition)
+      map.off('zoomend', updatePosition)
+      map.off('moveend', updatePosition)
+    }
+  }, [map, lat, lng])
+
   return (
     <div
-      className="pointer-events-none absolute inset-0 flex items-center justify-center z-[400]"
+      className="pointer-events-none absolute z-[400]"
+      style={{
+        left: sweepPosition.x,
+        top: sweepPosition.y,
+        transform: 'translate(-50%, -50%)',
+      }}
       aria-hidden
     >
       <div
@@ -310,8 +340,8 @@ export default function WeatherRadarInner({
         <MapContainer
           center={[lat, lng]}
           zoom={compact ? 8 : 10}
-          minZoom={3}
-          maxZoom={12}
+          minZoom={5}
+          maxZoom={15}
           scrollWheelZoom
           style={{ height: '100%', width: '100%' }}
           attributionControl={!compact}
@@ -320,6 +350,8 @@ export default function WeatherRadarInner({
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; OpenStreetMap'
+            maxNativeZoom={19}
+            maxZoom={15}
           />
           {owmTileUrl && (
             <TileLayer
@@ -327,7 +359,7 @@ export default function WeatherRadarInner({
               url={owmTileUrl}
               opacity={0.7}
               maxNativeZoom={9}
-              maxZoom={12}
+              maxZoom={15}
               attribution='&copy; OpenWeatherMap'
             />
           )}
@@ -337,7 +369,7 @@ export default function WeatherRadarInner({
               url={rvTileUrl}
               opacity={0.8}
               maxNativeZoom={10}
-              maxZoom={12}
+              maxZoom={15}
               attribution='&copy; RainViewer'
             />
           )}
@@ -352,9 +384,8 @@ export default function WeatherRadarInner({
             pathOptions={{ color: '#10b981', fillOpacity: 0, weight: 1, dashArray: '2 6', opacity: 0.5 }}
           />
           <Marker position={[lat, lng]} icon={farmIcon} />
+          {showSweep && <RadarSweepAtPosition lat={lat} lng={lng} />}
         </MapContainer>
-
-        {showSweep && <RadarSweep />}
 
         {current && (
           <div className="absolute top-2 right-2 z-[500] bg-slate-900/75 backdrop-blur px-2.5 py-1.5 rounded-md text-white text-[11px] shadow-lg">

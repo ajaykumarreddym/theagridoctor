@@ -12,7 +12,7 @@ type Notif = {
   id: string
   type: string
   title: string
-  body: string | null
+  message: string | null
   metadata: Record<string, unknown> | null
   read_at: string | null
   created_at: string
@@ -319,8 +319,8 @@ export default function AlertsPage() {
                         <span className="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded">New</span>
                       )}
                     </div>
-                    {n.body && (
-                      <p className="text-xs text-slate-600 mt-1">{n.body}</p>
+                    {n.message && (
+                      <p className="text-xs text-slate-600 mt-1">{n.message}</p>
                     )}
                     <div className="flex items-center gap-3 text-[11px] text-slate-400 mt-1.5">
                       <span>{timeAgo(n.created_at)}</span>

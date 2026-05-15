@@ -56,6 +56,8 @@ export default function HeatmapMapInner({
       <MapContainer
         center={[lat, lng]}
         zoom={zoom}
+        minZoom={3}
+        maxZoom={18}
         style={{ height: '100%', width: '100%' }}
         scrollWheelZoom
       >
@@ -64,12 +66,16 @@ export default function HeatmapMapInner({
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+              maxNativeZoom={19}
+              maxZoom={18}
             />
           </LayersControl.BaseLayer>
           <LayersControl.BaseLayer name="Satellite">
             <TileLayer
               url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
               attribution="Tiles &copy; Esri"
+              maxNativeZoom={18}
+              maxZoom={18}
             />
           </LayersControl.BaseLayer>
         </LayersControl>

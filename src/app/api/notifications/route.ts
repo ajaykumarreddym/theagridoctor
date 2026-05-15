@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
 
   let q = supabase
     .from('notifications')
-    .select('id, type, title, body, metadata, read_at, created_at', { count: 'exact' })
+    .select('id, type, title, message, metadata, read_at, created_at', { count: 'exact' })
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1)

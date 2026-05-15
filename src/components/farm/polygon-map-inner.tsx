@@ -85,17 +85,23 @@ export default function PolygonMapInner({
         <MapContainer
           center={[centerLat, centerLng]}
           zoom={16}
+          minZoom={5}
+          maxZoom={18}
           scrollWheelZoom
           style={{ height: '100%', width: '100%' }}
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+            maxNativeZoom={19}
+            maxZoom={18}
           />
           <TileLayer
             attribution='Esri Satellite'
             url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
             opacity={0.85}
+            maxNativeZoom={18}
+            maxZoom={18}
           />
           <ClickCatcher onAdd={(p) => setPoints((arr) => [...arr, p])} />
           {points.length > 0 && (

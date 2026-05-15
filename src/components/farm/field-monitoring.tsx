@@ -499,11 +499,38 @@ function MetricCard({
 }
 
 function SatelliteTile({ label, url }: { label: string; url: string }) {
+  const [error, setError] = useState(false)
+  const [loading, setLoading] = useState(true)
+
   return (
     <div className="rounded-lg overflow-hidden border border-slate-200 bg-slate-100">
       <div className="aspect-square relative">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={url} alt={label} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+        {error ? (
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 p-2">
+            <AlertCircle className="w-6 h-6 mb-1" />
+            <span className="text-[10px] text-center">Image unavailable</span>
+          </div>
+        ) : (
+          <>
+            {loading && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Loader2 className="w-6 h-6 text-slate-400 animate-spin" />
+              </div>
+            )}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img 
+              src={url} 
+              alt={label} 
+              className="absolute inset-0 w-full h-full object-cover" 
+              loading="lazy"
+              onLoad={() => setLoading(false)}
+              onError={() => {
+                setError(true)
+                setLoading(false)
+              }}
+            />
+          </>
+        )}
       </div>
       <div className="text-[10px] text-slate-500 py-1 px-2 text-center">{label}</div>
     </div>
