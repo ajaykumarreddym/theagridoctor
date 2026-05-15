@@ -17,7 +17,7 @@ const OPENROUTER_VISION_MODELS = [
   'meta-llama/llama-3.2-11b-vision-instruct:free',
 ]
 
-const GEMINI_MODEL = 'gemini-2.5-flash'
+const GEMINI_MODEL = 'gemini-2.0-flash-exp'
 
 // ─── OpenRouter (chat completions) ────────────────────────────────────────────
 async function callOpenRouterText(messages: Msg[], opts: { maxTokens?: number; temperature?: number } = {}): Promise<string> {

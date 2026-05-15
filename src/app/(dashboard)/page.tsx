@@ -120,7 +120,7 @@ export default async function DashboardPage() {
   const in14d = new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10)
   const { data: upcomingTasks } = await supabase
     .from('crop_tasks')
-    .select('id,title,category,priority,due_date,crop_cycle_id,crop_cycles!inner(crop_name,farm_id,farms!inner(user_id,name))')
+    .select('id,task_name,category,priority,due_date,crop_cycle_id,crop_cycles!inner(crop_name,farm_id,farms!inner(user_id,name))')
     .eq('status', 'pending')
     .eq('crop_cycles.farms.user_id', user.id)
     .lte('due_date', in14d)
@@ -129,7 +129,7 @@ export default async function DashboardPage() {
 
   type UpcomingTask = {
     id: string
-    title: string
+    task_name: string
     category: string | null
     priority: string | null
     due_date: string | null
@@ -354,7 +354,7 @@ export default async function DashboardPage() {
                     >
                       <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${prioDot}`} />
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-medium text-slate-800 truncate">{t.title}</p>
+                        <p className="text-xs font-medium text-slate-800 truncate">{t.task_name}</p>
                         <p className="text-[10px] text-slate-400 truncate">
                           {t.crop_cycles?.crop_name} · {t.crop_cycles?.farms?.name}
                         </p>

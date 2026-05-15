@@ -18,14 +18,17 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
 
   const { data, error } = await supabase
     .from('crop_tasks')
-    .select('id, title, description, category, due_date, status, priority, ai_generated, created_at, completed_at')
+    .select('id, task_name, description, category, due_date, status, priority, ai_generated, created_at, completed_at')
     .eq('crop_cycle_id', params.id)
     .order('status', { ascending: true }) // pending before done
     .order('due_date', { ascending: true, nullsFirst: false })
     .order('created_at', { ascending: false })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ tasks: data ?? [] })
+  
+  // Map task_name to title for frontend compatibility
+  const tasks = data?.map((t: any) => ({ ...t, title: t.task_name })) ?? []
+  return NextResponse.json({ tasks })
 }
 
 // POST /api/crops/[id]/tasks — create a manual task
@@ -54,7 +57,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     .from('crop_tasks')
     .insert({
       crop_cycle_id: params.id,
-      title: body.title.trim().slice(0, 120),
+      task_name: body.title.trim().slice(0, 120),
       description: toNull(body.description),
       category: toNull(body.category),
       due_date: toNull(body.due_date),
@@ -66,5 +69,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ task: data }, { status: 201 })
+  
+  // Map task_name to title for frontend compatibility
+  const task = data ? { ...data, title: (data as any).task_name } : null
+  return NextResponse.json({ task }, { status: 201 })
 }

@@ -27,7 +27,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     update.status = body.status
     update.completed_at = body.status === 'pending' ? null : new Date().toISOString()
   }
-  if (body.title !== undefined) update.title = body.title.trim().slice(0, 120)
+  if (body.title !== undefined) update.task_name = body.title.trim().slice(0, 120)
   if (body.description !== undefined) update.description = body.description || null
   if (body.due_date !== undefined) update.due_date = body.due_date || null
   if (body.priority !== undefined) update.priority = body.priority || null
@@ -41,7 +41,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ task: data })
+  
+  // Map task_name to title for frontend compatibility
+  const task = data ? { ...data, title: (data as any).task_name } : null
+  return NextResponse.json({ task })
 }
 
 // DELETE /api/tasks/[id]

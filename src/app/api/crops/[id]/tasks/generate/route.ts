@@ -58,7 +58,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
     const rows = generated.map((t) => ({
       crop_cycle_id: params.id,
-      title: t.title,
+      task_name: t.title,
       description: t.description,
       category: t.category,
       priority: t.priority,
