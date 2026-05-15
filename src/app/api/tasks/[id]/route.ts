@@ -43,8 +43,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   
   // Map task_name to title for frontend compatibility
-  const task = data ? { ...data, title: (data as any).task_name } : null
-  return NextResponse.json({ task })
+  const taskWithTitle = data ? { ...data, title: (data as any).task_name } : null
+  return NextResponse.json({ task: taskWithTitle })
 }
 
 // DELETE /api/tasks/[id]
