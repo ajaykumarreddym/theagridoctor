@@ -130,14 +130,24 @@ export default async function DiagnoseHistoryPage({
               <Link key={d.id} href={`/diagnose/${d.id}`}>
                 <Card className="hover:border-emerald-200 hover:shadow-sm transition-all cursor-pointer group">
                   <CardContent className="p-4 flex items-center gap-4">
-                    {/* Icon */}
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${sev === 'critical' || sev === 'high' ? 'bg-red-50' : sev === 'medium' ? 'bg-amber-50' : 'bg-emerald-50'}`}>
-                      {d.full_report_json?.is_diseased === false ? (
-                        <CheckCircle2 className="w-6 h-6 text-emerald-500" />
-                      ) : (
-                        <AlertTriangle className={`w-6 h-6 ${sev === 'critical' || sev === 'high' ? 'text-red-500' : sev === 'medium' ? 'text-amber-500' : 'text-emerald-500'}`} />
-                      )}
-                    </div>
+                    {/* Image Thumbnail */}
+                    {d.image_urls?.[0] ? (
+                      <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 border border-slate-200">
+                        <img 
+                          src={d.image_urls[0]} 
+                          alt={d.disease_name ?? 'Crop image'}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${sev === 'critical' || sev === 'high' ? 'bg-red-50' : sev === 'medium' ? 'bg-amber-50' : 'bg-emerald-50'}`}>
+                        {d.full_report_json?.is_diseased === false ? (
+                          <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+                        ) : (
+                          <AlertTriangle className={`w-6 h-6 ${sev === 'critical' || sev === 'high' ? 'text-red-500' : sev === 'medium' ? 'text-amber-500' : 'text-emerald-500'}`} />
+                        )}
+                      </div>
+                    )}
 
                     {/* Info */}
                     <div className="flex-1 min-w-0">

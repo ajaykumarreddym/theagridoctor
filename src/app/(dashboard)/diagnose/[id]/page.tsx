@@ -140,6 +140,34 @@ export default async function DiagnoseResultPage({ params }: { params: { id: str
         </CardContent>
       </Card>
 
+      {/* Uploaded Images */}
+      {diagnosis.image_urls && diagnosis.image_urls.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold">Uploaded Images</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {diagnosis.image_urls.map((url, idx) => (
+                <a 
+                  key={idx} 
+                  href={url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="aspect-square rounded-lg overflow-hidden border border-slate-200 bg-slate-50 block"
+                >
+                  <img 
+                    src={url} 
+                    alt={`Diagnosis image ${idx + 1}`}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform"
+                  />
+                </a>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {report ? (
         <div className="space-y-4">
           {/* Cause */}
